@@ -92,6 +92,7 @@ const BoardList = React.memo(
                     setColumns(updatedColumns);
                 } else {
                     const [movedTask] = sourceTasks.splice(source.index, 1);
+                    movedTask.status = destinationColumn.name;
                     destinationTasks.splice(destination.index, 0, movedTask);
 
                     const updatedSourceColumn = {
@@ -119,29 +120,65 @@ const BoardList = React.memo(
             setSelectedTask(task);
         }, []);
 
-        const closePopup = useCallback(() => {
+        const closePopup = () => {
             setSelectedTask(null);
-        }, []);
+        };
 
         const handleUpdateTask = (updatedTask: Task) => {
-            const updatedColumns = columns.map((column) => ({
-                ...column,
-                tasks: column.tasks.map((task) =>
-                    task.title === updatedTask.title ? updatedTask : task,
-                ),
-            }));
-            setColumns(updatedColumns);
-            localStorage.setItem("columns", JSON.stringify(updatedColumns));
+            // Find the current column of the task
+            const currentColumnIndex = columns.findIndex((column) =>
+                column.tasks.some((task) => task.title === updatedTask.title),
+            );
+
+            if (currentColumnIndex === -1) return; // Task not found
+
+            const currentColumn = columns[currentColumnIndex];
+
+            if (currentColumn.name === updatedTask.status) {
+                const updatedColumns = columns.map((column) => ({
+                    ...column,
+                    tasks: column.tasks.map((task) =>
+                        task.title === updatedTask.title ? updatedTask : task,
+                    ),
+                }));
+                setColumns(updatedColumns);
+                localStorage.setItem("columns", JSON.stringify(updatedColumns));
+            } else {
+                const updatedSourceColumn = {
+                    ...currentColumn,
+                    tasks: currentColumn.tasks.filter(
+                        (task) => task.title !== updatedTask.title,
+                    ),
+                };
+
+                const destinationColumnIndex = columns.findIndex(
+                    (column) => column.name === updatedTask.status,
+                );
+
+                const destinationColumn = columns[destinationColumnIndex];
+                const updatedDestinationColumn = {
+                    ...destinationColumn,
+                    tasks: [...destinationColumn.tasks, updatedTask],
+                };
+
+                const updatedColumns = [...columns];
+                updatedColumns[currentColumnIndex] = updatedSourceColumn;
+                updatedColumns[destinationColumnIndex] =
+                    updatedDestinationColumn;
+
+                setColumns(updatedColumns);
+                localStorage.setItem("columns", JSON.stringify(updatedColumns));
+            }
         };
 
-        const handleAddColumn = (newColumn: Column) => {
-            const newColor = getRandomColor();
-            setColumnColors((prevColors) => ({
-                ...prevColors,
-                [newColumn.name]: newColor,
-            }));
-            setColumns((prevColumns) => [...prevColumns, newColumn]);
-        };
+        // const handleAddColumn = (newColumn: Column) => {
+        //     const newColor = getRandomColor();
+        //     setColumnColors((prevColors) => ({
+        //         ...prevColors,
+        //         [newColumn.name]: newColor,
+        //     }));
+        //     setColumns((prevColumns) => [...prevColumns, newColumn]);
+        // };
 
         return (
             <div className="mx-4 mt-6 flex gap-6">
