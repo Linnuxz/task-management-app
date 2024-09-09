@@ -13,6 +13,11 @@ const TaskPopup = ({
 }) => {
     const [updatedTask, setUpdatedTask] = useState<Task>(task);
 
+    useEffect(() => {
+        setUpdatedTask(task)
+    }, [task])
+
+    
     const popupRef = useRef<HTMLDivElement | null>(null);
 
     const checkClickOutside = (e: MouseEvent) => {
@@ -38,8 +43,10 @@ const TaskPopup = ({
                 : subtask,
         );
         setUpdatedTask({ ...updatedTask, subtasks: newSubtasks });
+        onUpdate({ ...updatedTask, subtasks: newSubtasks });
     };
 
+    
     const handleStatusChange = (newStatus: Status) => {
         const newTask = { ...updatedTask, status: newStatus };
         setUpdatedTask(newTask);
