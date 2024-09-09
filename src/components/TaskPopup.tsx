@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Status, Task } from "../types";
 import DropdownList from "./DropdownList";
 
@@ -12,6 +12,24 @@ const TaskPopup = ({
     onUpdate: (task: Task) => void;
 }) => {
     const [updatedTask, setUpdatedTask] = useState<Task>(task);
+
+    const popupRef = useRef<HTMLDivElement | null>(null);
+
+    const checkClickOutside = (e: MouseEvent) => {
+        if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+            onClose();
+        }
+    };
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => checkClickOutside(e);
+
+        document.addEventListener("mousedown", handleClick);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClick);
+        };
+    }, []);
 
     const handleCheckboxChange = (index: number) => {
         const newSubtasks = updatedTask.subtasks.map((subtask, subtaskIndex) =>
@@ -35,7 +53,10 @@ const TaskPopup = ({
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-[95%] max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-[#2B2C37]">
+            <div
+                ref={popupRef}
+                className="w-[95%] max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-[#2B2C37]"
+            >
                 <h2 className="mb-4 pb-2 pt-[px] text-[16px] font-bold dark:text-white">
                     {updatedTask.title}
                 </h2>
@@ -88,7 +109,7 @@ const TaskPopup = ({
                                     )}
                                 </div>
                                 <span
-                                    className={`break-words pl-2 text-[12px] font-bold leading-normal dark:text-white ${subtask.isCompleted ? "line-through opacity-50" : ""}`}
+                                    className={`break-words pl-2 text-[12px] font-bold leading-normal dark:text-white ${subtask.isCompleted ? "line-through opacity-50 transition duration-500" : ""}`}
                                 >
                                     {subtask.title}
                                 </span>
