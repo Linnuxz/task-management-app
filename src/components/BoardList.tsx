@@ -46,7 +46,7 @@ const BoardList = React.memo(
             return colors;
         }, [initialColumns]);
 
-        const [columnColors, setColumnColors] = useState<{
+        const [columnColors] = useState<{
             [key: string]: string;
         }>(initialColors);
 
@@ -116,6 +116,11 @@ const BoardList = React.memo(
             [columns],
         );
 
+        useEffect(() => {
+            console.log("Initial columns:", initialColumns);
+            setColumns(initialColumns);
+        }, [initialColumns]);
+
         const handleTaskClick = useCallback((task: Task) => {
             setSelectedTask(task);
         }, []);
@@ -170,15 +175,6 @@ const BoardList = React.memo(
                 localStorage.setItem("columns", JSON.stringify(updatedColumns));
             }
         };
-
-        // const handleAddColumn = (newColumn: Column) => {
-        //     const newColor = getRandomColor();
-        //     setColumnColors((prevColors) => ({
-        //         ...prevColors,
-        //         [newColumn.name]: newColor,
-        //     }));
-        //     setColumns((prevColumns) => [...prevColumns, newColumn]);
-        // };
 
         return (
             <div className="mx-4 mt-6 flex gap-6">

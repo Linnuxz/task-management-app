@@ -4,16 +4,19 @@ import ArrowDown from "../assets/icon-chevron-down.svg";
 import ArrowUp from "../assets/icon-chevron-up.svg";
 import AddTaskMobile from "../assets/icon-add-task-mobile.svg";
 import VerticalEllipsis from "../assets/icon-vertical-ellipsis.svg";
+import AddTaskPopup from "./AddTaskPopup";
 
-const Navbar = ({ isCreating }: { isCreating: boolean }) => {
+const Navbar = ({ selectedBoard }: { selectedBoard: number }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
+    const [isAddTaskOpen, setIsAddTaskOpen] = useState<boolean>(false);
+
+    const handleAddTaskOpen = () => {
+        setIsAddTaskOpen(!isAddTaskOpen);
+    };
+
     return (
-        <div
-            className={`flex items-center justify-between px-[16px] py-[20px] transition duration-500 dark:bg-contentDarkBG ${
-                isCreating ? "brightness-50" : ""
-            }`}
-        >
+        <div className="relative flex items-center justify-between px-[16px] py-[20px] transition duration-500 dark:bg-contentDarkBG">
             <div className="flex gap-4">
                 <img src={ThreeColumns} alt="" className="h-[24px] w-[24px]" />
                 <h3
@@ -42,7 +45,10 @@ const Navbar = ({ isCreating }: { isCreating: boolean }) => {
                 )}
             </div>
             <div className="flex gap-4">
-                <button className="flex h-8 w-12 items-center justify-center rounded-3xl bg-[#635FC7]">
+                <button
+                    onClick={handleAddTaskOpen}
+                    className="flex h-8 w-12 items-center justify-center rounded-3xl bg-[#635FC7]"
+                >
                     <img src={AddTaskMobile} />
                 </button>
                 <button>
@@ -50,6 +56,7 @@ const Navbar = ({ isCreating }: { isCreating: boolean }) => {
                 </button>
             </div>
             {isOpen && <div className="absolute text-white">hrdegjdofsigj</div>}
+            {isAddTaskOpen && <AddTaskPopup onClose={handleAddTaskOpen} selectedBoard={selectedBoard}/>}
         </div>
     );
 };

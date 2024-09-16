@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Status, Task } from "../types";
 import DropdownList from "./DropdownList";
 
+import VerticalEllipsis from "../assets/icon-vertical-ellipsis.svg";
+
 const TaskPopup = ({
     task,
     onClose,
@@ -14,10 +16,17 @@ const TaskPopup = ({
     const [updatedTask, setUpdatedTask] = useState<Task>(task);
 
     useEffect(() => {
-        setUpdatedTask(task)
-    }, [task])
+        setUpdatedTask(task);
+    }, [task]);
 
-    
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
+
     const popupRef = useRef<HTMLDivElement | null>(null);
 
     const checkClickOutside = (e: MouseEvent) => {
@@ -46,7 +55,6 @@ const TaskPopup = ({
         onUpdate({ ...updatedTask, subtasks: newSubtasks });
     };
 
-    
     const handleStatusChange = (newStatus: Status) => {
         const newTask = { ...updatedTask, status: newStatus };
         setUpdatedTask(newTask);
@@ -64,9 +72,14 @@ const TaskPopup = ({
                 ref={popupRef}
                 className="w-[95%] max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-[#2B2C37]"
             >
-                <h2 className="mb-4 pb-2 pt-[px] text-[16px] font-bold dark:text-white">
-                    {updatedTask.title}
-                </h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="mb-4 max-w-[274px] pb-2 pt-[px] text-[16px] font-bold dark:text-white">
+                        {updatedTask.title}
+                    </h2>
+                    <button>
+                        <img src={VerticalEllipsis} alt="" />
+                    </button>
+                </div>
                 <p className="text-[13px] font-medium leading-[23px] text-[#828FA3]">
                     {updatedTask.description}
                 </p>
@@ -129,6 +142,7 @@ const TaskPopup = ({
                     <DropdownList
                         currentStatus={updatedTask.status}
                         onStatusChange={handleStatusChange}
+                        direction="down"
                     />
                 </div>
             </div>
